@@ -38,7 +38,7 @@ app.post('/login', (req, res) => {
         res.status(500).json({ message: "Database error" });
       } else if (row) {
         const token = jwt.sign({ username: row.username }, SECRET_KEY, { expiresIn: '1h' });
-        console.log("login success");
+        console.log("login success",token);
         res.json({ success: true, message: "Login successful", username: row.username ,isLoggedIn:1, token});
       } else {
         console.log("login failed");
@@ -76,9 +76,29 @@ app.post('/register', async (req, res) => {
   });
 });
 
+// 中间件：验证JWT并提取用户名
+function authenticateToken(req, res, next) {
+     const token = req.headers['authorization'];
+  
+    if (!token) return res.status(401).json({ message: 'Access denied' });
+  
+    jwt.verify(token, SECRET_KEY, (err, user) => {
+      if (err) return res.status(403).json({ message: 'Invalid token' });
+      req.user = user;
+      next();
+    });
+  }
+
 // 获取文件列表接口
-app.get('/files', (req, res) => {
-    const currentPath = req.query.path ? path.join(uploadDir, req.query.path) : uploadDir;
+app.get('/files', authenticateToken,(req, res) => {
+    const username = req.user.username;
+    const userFolderPath = req.headers['path'];
+    let currentPath = path.join(uploadDir,username,userFolderPath);
+    if(userFolderPath != ''){
+      console.log(userFolderPath);
+      currentPath = path.join(uploadDir,userFolderPath);
+    }
+    console.log(currentPath);
 
     if (!fs.existsSync(currentPath)) {
         return res.status(404).json({ message: 'Directory not found' });
@@ -109,8 +129,9 @@ app.get('/files', (req, res) => {
 
 // 文件下载接口
 app.get('/download/:filename', (req, res) => {
+    const username = req.user.username;
     const fileName = req.params.filename;
-    const filePath = path.join(uploadDir, fileName);
+    const filePath = path.join(uploadDir,username, fileName);
 
     fs.stat(filePath, (err) => {
         if (err) {

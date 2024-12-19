@@ -1,6 +1,5 @@
 <template>
   <n-page>
-    <n-page-header title="网盘" />
     <router-view/>
   </n-page>
 </template>

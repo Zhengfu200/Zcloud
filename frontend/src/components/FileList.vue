@@ -18,7 +18,7 @@
                 </n-card>
             </n-grid-item>
         </n-grid>
-        <n-button v-if="currentPath !== ''" type="info" @click="goBack">返回上一级</n-button>
+        <n-button v-if="currentPath !== username" type="info" @click="goBack">返回上一级</n-button>
     </n-space>
 </template>
 
@@ -29,12 +29,39 @@ export default {
         return {
             files: [],
             currentPath: '',
+            username:'',
         };
     },
     methods: {
+        checkLogin(){
+            const token = localStorage.getItem('token');
+            if(token){
+                const decodedToken = JSON.parse(atob(token.split('.')[1]))
+                this.username = decodedToken.username;
+                return true;
+            }
+            return false;
+        },
+
         async fetchFiles(path = '') {
+            const token = localStorage.getItem('token');
+            let userFolderPath = `${path}`;
+            console.log(userFolderPath);
+
+            if (!this.checkLogin()) {
+                console.log('用户未登录');
+                return;
+            }
+
             try {
-                const response = await fetch(`http://localhost:3000/files?path=${encodeURIComponent(path)}`);
+                console.log(userFolderPath);
+                const response = await fetch(`http://localhost:3000/files?path=${encodeURIComponent(userFolderPath)}`,{
+                    method: 'GET',
+                    headers: {
+                        'Authorization': token, 
+                        'path' :userFolderPath,
+                    },
+                });
                 const data = await response.json();
                 this.files = data;
                 this.currentPath = path;

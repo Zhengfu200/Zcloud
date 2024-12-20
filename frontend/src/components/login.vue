@@ -10,10 +10,10 @@
       </n-form-item>
 
       <div style="display: flex; justify-content: space-between; gap: 16px;">
-        <n-button type="primary" @click="handleLogin">Login</n-button>
-        <n-button @click="goToRegister" type="primary" ghost>Register</n-button>
+        <n-button type="primary" @click="handleLogin" class="n-button">Login</n-button>
+        <n-button @click="goToRegister" type="primary" ghost class="n-button">Register</n-button>
       </div>
-      
+
     </n-form>
   </n-card>
 </template>
@@ -74,5 +74,34 @@ export default {
 .login-card {
   width: 300px;
   margin: 50px auto;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #FFFFFF;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
+.n-button {
+  font-size: 16px;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.n-button--primary {
+  background-color: #409eff;
+  color: #fff;
+}
+
+.n-button--primary:hover {
+  background-color: #4c9fff;
+}
+
+.n-button--ghost {
+  color: #409eff;
+  border: 1px solid #409eff;
+  background-color: transparent;
+}
+
+
 </style>

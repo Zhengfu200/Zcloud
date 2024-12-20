@@ -7,7 +7,7 @@
     <n-form-item label="Password">
       <n-input type="password" v-model:value="password" placeholder="Enter your password" />
     </n-form-item>
-    <n-button @click="handleRegister" type="primary">Register</n-button>
+    <n-button @click="handleRegister" type="primary" class="n-button">Register</n-button>
   </n-card>
 </template>
 
@@ -58,5 +58,32 @@ export default {
 .register-card {
   width: 300px;
   margin: 50px auto;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.n-button {
+  font-size: 16px;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.n-button--primary {
+  background-color: #409eff;
+  color: #fff;
+}
+
+.n-button--primary:hover {
+  background-color: #4c9fff;
+}
+
+.n-button--ghost {
+  color: #409eff;
+  border: 1px solid #409eff;
+  background-color: transparent;
 }
 </style>

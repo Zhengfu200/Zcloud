@@ -1,10 +1,19 @@
 <template>
     <n-space vertical size="large" align="center" class="file-list">
+  <n-upload
+    v-model:file-list="fileList"
+    :show-file-list="false" 
+    :on-before-upload="onFileChange" 
+  >
+    <n-button>上传文件</n-button>
+  </n-upload>
+        <n-button @click="uploadFile">Upload</n-button>
         <n-grid x-gap="24" y-gap="24" cols="4">
             <n-grid-item v-for="(file, index) in files" :key="index">
                 <n-card :title="file.name" bordered hoverable class="file-card">
                     <template v-slot:header-extra>
-                        <n-button v-if="!file.isDirectory" type="primary" @click="handleFileDownload(file.relativePath,file.name)">
+                        <n-button v-if="!file.isDirectory" type="primary"
+                            @click="handleFileDownload(file.relativePath, file.name)">
                             下载
                         </n-button>
                         <n-button v-else type="success" @click="navigateToFolder(file.relativePath)">
@@ -23,19 +32,22 @@
 </template>
 
 <script>
+import axios from 'axios';
 
 export default {
     data() {
         return {
             files: [],
             currentPath: '',
-            username:'',
+            username: '',
+            selectedFile: null,
+            message: ''
         };
     },
     methods: {
-        checkLogin(){
+        checkLogin() {
             const token = localStorage.getItem('token');
-            if(token){
+            if (token) {
                 const decodedToken = JSON.parse(atob(token.split('.')[1]))
                 this.username = decodedToken.username;
                 return true;
@@ -55,11 +67,11 @@ export default {
 
             try {
                 console.log(userFolderPath);
-                const response = await fetch(`http://localhost:3000/files?path=${encodeURIComponent(userFolderPath)}`,{
+                const response = await fetch(`http://localhost:3000/files?path=${encodeURIComponent(userFolderPath)}`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': token, 
-                        'path' :userFolderPath,
+                        'Authorization': token,
+                        'path': userFolderPath,
                     },
                 });
                 const data = await response.json();
@@ -101,22 +113,50 @@ export default {
         // 返回上一级文件夹
         goBack() {
             console.log(this.currentPath);
-            if(this.currentPath && this.currentPath.includes('\\')){
+            if (this.currentPath && this.currentPath.includes('\\')) {
                 const pathParts = this.currentPath.split('\\');
                 pathParts.pop();
                 this.currentPath = pathParts.join('\\');
                 this.fetchFiles(this.currentPath);
-            }else{
+            } else {
                 console.log('已经在根目录，无法返回上一级');
             }
 
         },
+        //上传文件
+        onFileChange(file) {
+            this.selectedFile = file;
+        },
+        async uploadFile() {
+            console.log('Upload button clicked');
 
+            if (!this.selectedFile) {
+                console.log('No file selected.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', this.selectedFile);
+
+            try {
+                console.log('File uploading:', this.selectedFile);
+                const response = await axios.post('http://localhost:3000/upload', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+                this.message = response.data;
+                this.fetchFiles(currentPath);
+            } catch (error) {
+                this.message = 'File upload failed.';
+                console.error(error);
+            }
+        },
         mounted() {
             this.fetchFiles();
         }
     },
-    mounted(){
+    mounted() {
         this.fetchFiles();
     }
 };

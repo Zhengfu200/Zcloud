@@ -17,8 +17,10 @@ export default {
     checkLoginStatus() {
       const token = localStorage.getItem('token');  // 从 localStorage 获取 token
       if (!token) {
+        console.log("not logged in");
         this.$router.push('/login');  // 如果没有 token，则跳转到登录页面
       } else {
+        
         this.isLoggedIn = true;
       }
     }

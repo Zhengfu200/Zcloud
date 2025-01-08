@@ -1,8 +1,8 @@
 <template>
     <n-space vertical size="large" align="center" class="file-list">
   <n-upload
-    v-model:file-list="fileList"
-    :show-file-list="false" 
+    :multiple = true
+    :show-file-list="true" 
     :on-before-upload="onFileChange" 
   >
     <n-button>上传文件</n-button>
@@ -37,11 +37,11 @@ import axios from 'axios';
 export default {
     data() {
         return {
-            files: [],
+            files:[],
             currentPath: '',
             username: '',
             selectedFile: null,
-            message: ''
+            message: '',
         };
     },
     methods: {
@@ -124,8 +124,10 @@ export default {
 
         },
         //上传文件
-        onFileChange(file) {
+        onFileChange({file}) {
+            console.log('File selected:', file);
             this.selectedFile = file;
+
         },
         async uploadFile() {
             console.log('Upload button clicked');
@@ -136,7 +138,7 @@ export default {
             }
 
             const formData = new FormData();
-            formData.append('file', this.selectedFile);
+            formData.append('file', this.selectedFile.file);
 
             try {
                 console.log('File uploading:', this.selectedFile);
@@ -146,7 +148,6 @@ export default {
                     }
                 });
                 this.message = response.data;
-                this.fetchFiles(currentPath);
             } catch (error) {
                 this.message = 'File upload failed.';
                 console.error(error);
